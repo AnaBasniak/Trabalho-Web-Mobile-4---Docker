@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: usuario_admin
+      POSTGRES_PASSWORD: senha_segura
+      POSTGRES_DB: meu_banco
+    ports:
+      - "5432:5432"
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://usuario_admin:senha_segura@db:5432/meu_banco
+    depends_on:
+      - db

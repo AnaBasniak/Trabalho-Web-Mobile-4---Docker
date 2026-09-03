@@ -1,0 +1,22 @@
+name: Pipeline CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do Código
+      uses: actions/checkout@v3
+
+    - name: Subir Containers e Executar Testes
+      run: |
+        docker compose up -d
+        docker compose run api pytest
+
+    - name: Encerrar Ambiente
+      if: always()
+      run: docker compose down

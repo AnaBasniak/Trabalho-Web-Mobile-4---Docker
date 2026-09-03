@@ -2,7 +2,7 @@ name: Pipeline CI/CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
 
 jobs:
   testes:
@@ -15,7 +15,7 @@ jobs:
     - name: Subir Containers e Executar Testes
       run: |
         docker compose up -d
-        docker compose run api pytest
+        docker compose run -e PYTHONPATH=/app/app api pytest
 
     - name: Encerrar Ambiente
       if: always()

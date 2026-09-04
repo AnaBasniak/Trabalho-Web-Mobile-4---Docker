@@ -5,18 +5,34 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  testes:
+  testes_e_deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout do Código
       uses: actions/checkout@v3
 
+    # --- FASE DE CI (INTEGRAÇÃO CONTÍNUA) ---
     - name: Subir Containers e Executar Testes
       run: |
         docker compose up -d
         docker compose run -e PYTHONPATH=/app/app api pytest
 
+    # --- FASE DE CD (ENTREGA/DEPLOY CONTÍNUO) ---
+    - name: Login no Docker Hub
+      if: success()
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build e Push da Imagem para a Nuvem
+      if: success()
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/minha-api:latest .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/minha-api:latest
+
+    # --- LIMPEZA DO AMBIENTE ---
     - name: Encerrar Ambiente
       if: always()
       run: docker compose down
